@@ -4,7 +4,6 @@ import { User } from "@prisma/client";
 declare module "express-session" {
   interface SessionData {
     user?: Partial<User>;
-    csrf?: string
   }
 }
 

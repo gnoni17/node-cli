@@ -5,7 +5,6 @@ import { statusCodes } from "../../utils/response";
 const api = supertest(app);
 
 let token = "";
-let csrfToken = "";
 
 const user = {
   email: "test@gmail.com",
@@ -23,8 +22,6 @@ describe("test user controller", () => {
 
     const cookie = response.headers["set-cookie"][0];
     token = cookie.slice(0, cookie.indexOf(";"));
-
-    csrfToken = response.body.data.token;
 
     expect(response.status).toEqual(statusCodes.Ok);
 
@@ -51,17 +48,15 @@ describe("test user controller", () => {
 
     const cookie = responseDone.headers["set-cookie"][0];
     token = cookie.slice(0, cookie.indexOf(";"));
-
-    csrfToken = responseDone.body.data.token;
   });
 
   it("test put user", async () => {
-    const responseDone = await api.put("/user").send(user).set("Cookie", token).set("csrf", csrfToken);
+    const responseDone = await api.put("/user").send(user).set("Cookie", token)
     expect(responseDone.status).toEqual(statusCodes.Ok);
   });
 
   it("test delete user", async () => {
-    const responseDone = await api.delete("/user").set("Cookie", token).set("csrf", csrfToken);
+    const responseDone = await api.delete("/user").set("Cookie", token)
     expect(responseDone.status).toEqual(statusCodes.Ok);
   });
 });

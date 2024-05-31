@@ -34,10 +34,7 @@ export const signup = async (req: Request, res: Response) => {
 
     req.session.user = user;
 
-    const csrf = uuidv4();
-    req.session.csrf = csrf;
-
-    const response = new ApiResponse(statusCodes.Ok, undefined, { id: user.id, email: user.email, token: csrf });
+    const response = new ApiResponse(statusCodes.Ok, undefined, { id: user.id, email: user.email });
     response.send(res);
   } catch (error) {
     const response = new ApiResponse(statusCodes.InternalServerError);
@@ -71,10 +68,7 @@ export const signin = async (req: Request, res: Response) => {
 
     req.session.user = user;
 
-    const csrf = uuidv4();
-    req.session.csrf = csrf;
-
-    const response = new ApiResponse(statusCodes.Ok, undefined, { id: user.id, email: user.email, token: csrf });
+    const response = new ApiResponse(statusCodes.Ok, undefined, { id: user.id, email: user.email });
     response.send(res);
   } catch (error) {
     const response = new ApiResponse(statusCodes.InternalServerError);
