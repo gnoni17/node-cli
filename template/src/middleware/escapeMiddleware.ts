@@ -32,7 +32,9 @@ export const sanitizeMiddleware = (req: Request, res: Response, next: NextFuncti
   }
 
   try {
-    req.body = sanitize(req.body);
+    if (req.method == "POST") {
+      req.body = sanitize(req.body);
+    }
     next();
   } catch (error: any) {
     res.json({ error: error.message }).status(400);

@@ -8,6 +8,9 @@ import { sanitizeMiddleware } from "./middleware/escapeMiddleware";
 export const app = express();
 config();
 
+app.set("views", "views");
+app.set("view engine", "ejs");
+
 app.use(cors());
 
 app.use(
@@ -27,10 +30,14 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+userRoute.get("/signup", (req, res) => {
+  res.render("login");
+});
+
 app.use(sanitizeMiddleware);
 
 app.use("/", userRoute);
 
-app.listen("8080", () => {
+app.listen("4000", () => {
   console.log("server is listen http://localhost:4000");
 });
