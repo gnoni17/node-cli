@@ -41,7 +41,7 @@ export async function signup(req: Request, res: Response) {
       },
     });
 
-    req.session.user = user;
+    req.session.user = { ...user, password: undefined };
 
     res.redirect("http://google.com");
   } catch (e) {
@@ -68,7 +68,7 @@ export async function signin(req: Request, res: Response) {
       return res.render("signin", { error: "Password or email is not correct" });
     }
 
-    req.session.user = user;
+    req.session.user = { ...user, password: undefined };
 
     res.redirect("http://google.com");
   } catch (e) {
