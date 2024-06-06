@@ -7,8 +7,8 @@ import { Authlimiter } from "../middleware/limiterMiddleware";
 
 const userRoute = Router();
 
-userRoute.post("/signup", [validateData(userSchema), Authlimiter], signup);
-userRoute.post("/signin", [validateData(userSchema), Authlimiter], signin);
+userRoute.post("/signup", Authlimiter, signup);
+userRoute.post("/signin", Authlimiter, signin);
 
 userRoute.get("/user", authMiddleware, get);
 userRoute.put("/user", [validateData(userSchema), authMiddleware], put);

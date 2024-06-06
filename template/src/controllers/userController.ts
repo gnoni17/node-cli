@@ -1,23 +1,32 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
-import { v4 as uuidv4 } from "uuid";
+import { ZodError } from "zod";
 import { db } from "../db";
 import { ApiResponse, statusCodes } from "../utils/response";
+import { userSchema } from "../schemas";
 
-export const signup = async (req: Request, res: Response) => {
+function getsignupError(error: any) {
+  if (error instanceof ZodError) {
+    return error.errors.map(e => ({ field: e.path.join("."), message: e.message }));
+  } else {
+    return error;
+  }
+}
+
+export async function signup(req: Request, res: Response) {
   const { email, password } = req.body;
 
   try {
+    userSchema.parse(req.body);
     // check if exist
-    const found = await db.user.findFirst({
+    const found = await db.user.findUnique({
       where: {
         email,
       },
     });
 
     if (found) {
-      const response = new ApiResponse(statusCodes.BadRequest, "Email already used");
-      return response.send(res);
+      return res.render("signup", { error: "Email already used" });
     }
 
     // crypt password
@@ -34,18 +43,18 @@ export const signup = async (req: Request, res: Response) => {
 
     req.session.user = user;
 
-    const response = new ApiResponse(statusCodes.Ok, undefined, { id: user.id, email: user.email });
-    response.send(res);
-  } catch (error) {
-    const response = new ApiResponse(statusCodes.InternalServerError);
-    response.send(res);
+    res.redirect("http://google.com");
+  } catch (e) {
+    const error = getsignupError(e);
+    res.render("signup", { error });
   }
-};
+}
 
-export const signin = async (req: Request, res: Response) => {
+export async function signin(req: Request, res: Response) {
   const { email, password }: { email: string; password: string } = req.body;
 
   try {
+    userSchema.parse(req.body);
     // check if exist
     const user = await db.user.findUnique({
       where: {
@@ -53,41 +62,30 @@ export const signin = async (req: Request, res: Response) => {
       },
     });
 
-    if (user == null) {
-      const response = new ApiResponse(statusCodes.NotFound, "User not found");
-      return response.send(res);
-    }
+    const isCorrect = await bcrypt.compare(password, user?.password || "");
 
-    // compare password
-    const isCorrect = await bcrypt.compare(password, user.password);
-
-    if (!isCorrect) {
-      const response = new ApiResponse(statusCodes.BadRequest, "Password is not correct");
-      return response.send(res);
+    if (!isCorrect || user == null) {
+      return res.render("signin", { error: "Password or email is not correct" });
     }
 
     req.session.user = user;
 
-    const response = new ApiResponse(statusCodes.Ok, undefined, { id: user.id, email: user.email });
-    response.send(res);
-  } catch (error) {
-    const response = new ApiResponse(statusCodes.InternalServerError);
-    response.send(res);
+    res.redirect("http://google.com");
+  } catch (e) {
+    const error = getsignupError(e);
+    res.render("signin", { error });
   }
-};
+}
 
-export const get = async (req: Request, res: Response) => {
+export async function get(req: Request, res: Response) {
   const response = new ApiResponse(statusCodes.Ok, undefined, req.session.user);
   response.send(res);
-};
+}
 
-export const put = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+export async function put(req: Request, res: Response) {
+  const { email } = req.body;
 
   try {
-    const salt = await bcrypt.genSalt(10);
-    const passwordCrypt = await bcrypt.hash(password, salt);
-
     const user = await db.user.update({
       where: {
         id: req.session.user?.id,
@@ -95,7 +93,6 @@ export const put = async (req: Request, res: Response) => {
 
       data: {
         email,
-        password: passwordCrypt,
       },
     });
 
@@ -105,9 +102,9 @@ export const put = async (req: Request, res: Response) => {
     const response = new ApiResponse(statusCodes.InternalServerError);
     response.send(res);
   }
-};
+}
 
-export const deleteUser = async (req: Request, res: Response) => {
+export async function deleteUser(req: Request, res: Response) {
   try {
     await db.user.delete({
       where: {
@@ -121,4 +118,4 @@ export const deleteUser = async (req: Request, res: Response) => {
     const response = new ApiResponse(statusCodes.InternalServerError);
     response.send(res);
   }
-};
+}

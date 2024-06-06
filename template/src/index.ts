@@ -10,6 +10,7 @@ config();
 
 app.set("views", "views");
 app.set("view engine", "ejs");
+app.use(express.static("views"));
 
 app.use(cors());
 
@@ -31,7 +32,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 userRoute.get("/signup", (req, res) => {
-  res.render("login");
+  res.render("signup", { error: undefined });
+});
+
+userRoute.get("/signin", (req, res) => {
+  res.render("signin", { error: undefined });
 });
 
 app.use(sanitizeMiddleware);

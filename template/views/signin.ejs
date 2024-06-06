@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <link rel="stylesheet" href="./style.css">
+    <title>Signin</title>
+  </head>
+
+  <body>
+    <main>
+      <form
+        class="form"
+        action="/signin"
+        method="post"
+      >
+        <h1 style="margin-bottom: 1rem">Accedi</h1>
+
+        <div style="width: 100%;">
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+          />
+
+          <% 
+            const emailError = error?.find(e => e.field == 'email') 
+            if (emailError) { 
+          %>
+          <span class="error"> <%= emailError.message %> </span>
+          <% } %>
+        </div>
+
+        <div style="width: 100%;">
+          <input
+            type="text"
+            name="password"
+            placeholder="Password"
+          />
+
+          <% 
+            const passwordError = error?.find(e => e.field == 'password') 
+            if (passwordError) { 
+          %>
+          <span class="error"> <%= passwordError.message %> </span>
+          <% } %>
+        </div>
+
+        <div style="width: 100%; font-size: small;">
+            <a href="/signup">Non hai un'account?</a>
+        </div>
+
+        <button>Accedi</button>
+      </form>
+    </main>
+  </body>
+</html>
