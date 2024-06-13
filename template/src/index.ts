@@ -2,11 +2,14 @@ import express from "express";
 import session, { MemoryStore } from "express-session";
 import cors from "cors";
 import { config } from "dotenv";
-import { userRoute } from "./routes";
-import { sanitizeMiddleware } from "./middleware/escapeMiddleware";
+import { sanitizeMiddleware } from "./middleware";
+import { loginRoute, userRoute } from "./routes";
+import { extend } from "./db";
 
 export const app = express();
 config();
+
+extend();
 
 app.set("views", "views");
 app.set("view engine", "ejs");
@@ -31,13 +34,7 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-userRoute.get("/signup", (req, res) => {
-  res.render("signup", { error: undefined });
-});
-
-userRoute.get("/signin", (req, res) => {
-  res.render("signin", { error: undefined });
-});
+app.use(loginRoute);
 
 app.use(sanitizeMiddleware);
 

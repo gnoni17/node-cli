@@ -49,6 +49,13 @@
           <% } %>
         </div>
 
+        <% 
+            const e = error?.find(e => e.field == null) 
+            if (e) { 
+          %>
+          <span class="error"> <%= e.message %> </span>
+          <% } %>
+
         <div style="width: 100%; font-size: small;">
             <a href="/signup">Non hai un'account?</a>
         </div>

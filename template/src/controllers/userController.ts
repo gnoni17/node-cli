@@ -9,7 +9,7 @@ function getsignupError(error: any) {
   if (error instanceof ZodError) {
     return error.errors.map(e => ({ field: e.path.join("."), message: e.message }));
   } else {
-    return error;
+    return [{ field: null, message: error.message }];
   }
 }
 
@@ -26,7 +26,8 @@ export async function signup(req: Request, res: Response) {
     });
 
     if (found) {
-      return res.render("signup", { error: "Email already used" });
+      const error = [{ field: "email", message: "Email already used" }];
+      return res.render("signup", { error });
     }
 
     // crypt password
@@ -43,7 +44,7 @@ export async function signup(req: Request, res: Response) {
 
     req.session.user = { ...user, password: undefined };
 
-    res.redirect("http://google.com");
+    res.redirect("/");
   } catch (e) {
     const error = getsignupError(e);
     res.render("signup", { error });
@@ -65,12 +66,13 @@ export async function signin(req: Request, res: Response) {
     const isCorrect = await bcrypt.compare(password, user?.password || "");
 
     if (!isCorrect || user == null) {
-      return res.render("signin", { error: "Password or email is not correct" });
+      const error = [{ field: null, message: "Password or email is not correct" }];
+      return res.render("signin", { error });
     }
 
     req.session.user = { ...user, password: undefined };
 
-    res.redirect("http://google.com");
+    res.redirect("/");
   } catch (e) {
     const error = getsignupError(e);
     res.render("signin", { error });
@@ -106,7 +108,7 @@ export async function put(req: Request, res: Response) {
 
 export async function deleteUser(req: Request, res: Response) {
   try {
-    await db.user.delete({
+    await db.user.softDelete({
       where: {
         id: req.session.user?.id,
       },
