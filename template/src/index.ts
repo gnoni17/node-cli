@@ -4,12 +4,9 @@ import cors from "cors";
 import { config } from "dotenv";
 import { sanitizeMiddleware } from "./middleware";
 import { loginRoute, userRoute } from "./routes";
-import { extend } from "./db";
 
 export const app = express();
 config();
-
-extend();
 
 app.set("views", "views");
 app.set("view engine", "ejs");

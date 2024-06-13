@@ -80,8 +80,24 @@ export async function signin(req: Request, res: Response) {
 }
 
 export async function get(req: Request, res: Response) {
-  const response = new ApiResponse(statusCodes.Ok, undefined, req.session.user);
-  response.send(res);
+  try {
+    const user = await db.user.findUnique({
+      where: {
+        id: req.session.user?.id,
+      },
+    });
+
+    if (!user) {
+      const response = new ApiResponse(statusCodes.NotFound, "User not found");
+      return response.send(res);
+    }
+
+    const response = new ApiResponse(statusCodes.Ok, undefined, req.session.user);
+    response.send(res);
+  } catch (error) {
+    const response = new ApiResponse(statusCodes.InternalServerError);
+    response.send(res);
+  }
 }
 
 export async function put(req: Request, res: Response) {
